@@ -1,0 +1,13 @@
+# proj directories
+**/proj
+
+# reference design
+0_ccc-main/
+
+# office files
+*.docx
+*.pptx
+
+# vivado
+*.dcp
+*.wdb
