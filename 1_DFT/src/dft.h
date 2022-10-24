@@ -1,5 +1,15 @@
-
 typedef float DTYPE;
 #define SIZE 1024 		/* SIZE OF DFT */
-void dft(DTYPE real_sample[1024], DTYPE imag_sample[1024],DTYPE real_op[1024], DTYPE imag_op[1024]);
-
+//#define ONE_PORT
+//#define USE_DATAFLOW
+//#define STREAM
+#ifdef ONE_PORT
+	void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE]);
+#else
+    #ifdef STREAM
+        #include <hls_stream.h>
+	    void dft(hls::stream<DTYPE> *real_sample, hls::stream<DTYPE> *imag_sample, hls::stream<DTYPE> *real_out, hls::stream<DTYPE> *image_out);
+    #else
+	    void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE], DTYPE real_out[SIZE], DTYPE image_out[SIZE]);
+    #endif
+#endif
