@@ -4,118 +4,140 @@
 using namespace std;
 
 #define N 3534
+#define L 20
+#define E 41594
 
 typedef unsigned int data_t;
 typedef bool flag_t;
-
-// Class CFir definition
+//Stack Class
 template<class data_T, class flag_T>
-class Container {
+class Stack {
+protected:
+	data_T storage[N];
+	data_T cnt;
+public:
+	void 	 reset();
+
+	flag_T   push_back(data_T element);
+	data_T   pop_back();
+	data_T   back();
+
+	flag_T   empty();
+	flag_T   full();
+};
+template<class data_T, class flag_T>
+void   Stack<data_T, flag_T>::reset(){
+	cnt = 0;
+}
+template<class data_T, class flag_T>
+flag_T Stack<data_T, flag_T>::push_back(data_T element) {
+    flag_T flag = !full();
+    if(flag)
+    {
+        storage[cnt] = element;
+        cnt = cnt + 1;
+    }
+    return flag;
+}
+template<class data_T, class flag_T>
+data_T Stack<data_T, flag_T>:: pop_back(){
+    flag_T flag = !empty();
+    data_T data = -1;
+    if(flag)
+    {
+        cnt = cnt - 1;
+        data = storage[cnt];
+    }
+    return data;
+}
+template<class data_T, class flag_T>
+data_T Stack<data_T, flag_T>:: back(){
+    flag_T flag = !empty();
+    data_T data = -1;
+    if(flag)
+    {
+        data = storage[cnt - 1];
+    }
+    return data;
+}
+template<class data_T, class flag_T>
+flag_T Stack<data_T, flag_T>:: empty(){
+    return (cnt == 0);
+}
+template<class data_T, class flag_T>
+flag_T Stack<data_T, flag_T>:: full(){
+    return (cnt == N);
+}
+//Queue Class
+template<class data_T, class flag_T>
+class Queue {
  protected:
    data_T storage[N];
-   data_T sp = 0; //start pointer
-   data_T ep = 0; //end pointer
-   data_T cnt = 0;
+   data_T sp; //start pointer
+   data_T ep; //end pointer
+   data_T cnt;
 
  private:
  public:
-   flag_T   push_front(data_T element);
+   void 	reset();
    flag_T   push_back(data_T element);
-
-   data_T   pop();
+   data_T	pop_front();
    data_T   front();
 
    flag_T   empty();
    flag_T   full();
 
-   data_T   start_pointer();
-   data_T   end_pointer();
-   data_T   get_element(data_T index);
 };
-
 template<class data_T, class flag_T>
-flag_T Container<data_T, flag_T>::push_front(data_T element) {
-    flag_T flag = ~full();
-    if(flag)
-    {
-        storage[sp] = element;
-        if(sp == 0)
-            sp = N - 1;
-        else
-            sp = sp - 1;
-        cnt = cnt + 1;
-    }
-    return flag;
+void   Queue<data_T, flag_T>::reset(){
+	cnt = 0;
+	sp = 0;
+	ep = 0;
 }
-
 template<class data_T, class flag_T>
-flag_T Container<data_T, flag_T>::push_back(data_T element) {
-    flag_T flag = ~full();
+flag_T Queue<data_T, flag_T>::push_back(data_T element) {
+    flag_T flag = !full();
     if(flag)
     {
         storage[ep] = element;
-        if(ep == N - 1)
-            ep = 0;
+        if(ep == N-1)
+        	ep = 0;
         else
-            ep = ep + 1;
+        	ep = ep + 1;
         cnt = cnt + 1;
     }
     return flag;
 }
-
 template<class data_T, class flag_T>
-data_T Container<data_T, flag_T>:: pop(){
-    flag_T flag = ~empty();
-    data_T data = -1;
-    if(flag)
-    {
-        data = storage[ep];
-        if(ep == 0)
-            ep = N - 1;
-        else
-            ep = ep - 1;
-        cnt = cnt - 1;
-    }
-    return data;
-}
-
-template<class data_T, class flag_T>
-data_T Container<data_T, flag_T>:: front(){
-    flag_T flag = ~empty();
+data_T Queue<data_T, flag_T>::pop_front() {
+    flag_T flag = !empty();
     data_T data = -1;
     if(flag)
     {
         data = storage[sp];
-        if(sp == N - 1)
-            sp = 0;
+        if(sp == N-1)
+        	sp = 0;
         else
-            sp = sp + 1;
+        	sp = sp + 1;
         cnt = cnt - 1;
     }
     return data;
 }
-
 template<class data_T, class flag_T>
-flag_T Container<data_T, flag_T>:: empty(){
+data_T Queue<data_T, flag_T>::front() {
+    flag_T flag = !empty();
+    data_T data = -1;
+    if(flag)
+    {
+        data = storage[sp];
+    }
+    return data;
+}
+template<class data_T, class flag_T>
+flag_T Queue<data_T, flag_T>:: empty(){
     return (cnt == 0);
 }
-
 template<class data_T, class flag_T>
-flag_T Container<data_T, flag_T>:: full(){
+flag_T Queue<data_T, flag_T>:: full(){
     return (cnt == N);
-}
-
-template<class data_T, class flag_T>
-data_T Container<data_T, flag_T>:: start_pointer(){
-    return sp;
-}
-
-template<class data_T, class flag_T>
-data_T Container<data_T, flag_T>:: end_pointer(){
-    return ep;
-}
-
-template<class data_T, class flag_T>
-data_T Container<data_T, flag_T>:: get_element(data_T index){
-    return storage[index];
 }

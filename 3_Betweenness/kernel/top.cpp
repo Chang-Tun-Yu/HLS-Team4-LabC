@@ -117,17 +117,24 @@ extern "C" void dut(
   }
   for (int i = 0; i < numVert; i++)
   {
+	float delta[N];
     float sigma[N];
     int   dist[N];
-    static Container<data_t, flag_t> stack;
-    static Container<data_t, flag_t> queue;
-    static Container<data_t, flag_t> *p = new Container<data_t, flag_t>[N];    
+    static Stack<data_t, flag_t> stack;
+    static Queue<data_t, flag_t> queue;
+    unsigned int p[N][L];
+    unsigned int cnt[N];
     unsigned source = i;
 
+
+    stack.reset();
+    queue.reset();
     for (int j = 0; j < numVert; j++)
     {
       sigma[j] = 0;
       dist[j] = -1;
+      cnt[j] = 0;
+      delta[j] = 0;
     }
     sigma[source] = 1;
     dist[source] = 0;
@@ -136,51 +143,66 @@ extern "C" void dut(
     while (!queue.empty())
     {
       unsigned v = queue.front();
+
       stack.push_back(v);
-      for (int j = offset[v]; j < offset[v + 1]; j++)
+      unsigned start = offset[v];
+      unsigned end = offset[v+1];
+      int dist_v = dist[v];
+      float sigma_v= sigma[v];
+
+      for (unsigned j = start; j < end; j++)
       {
+#pragma HLS pipeline
         unsigned w = column[j];
-        if (dist[w] < 0)
+        int dist_w = dist[w];
+        bool flag = false;
+        if (dist_w < 0)
         {
+          flag = true;
           queue.push_back(w);
-          dist[w] = dist[v] + 1;
+          dist[w] = dist_v + 1;
         }
-        if (dist[w] == dist[v] + 1)
+        if (dist_w == dist_v + 1 || flag)
         {
-          sigma[w] = sigma[w] + sigma[v];
-          p[w].push_back(v);
+          unsigned cnt_tmp = cnt[w];
+          sigma[w] = sigma[w] + sigma_v;
+          p[w][cnt_tmp] = v;
+          cnt[w] = cnt_tmp + 1;
+
         }
       }
-      queue.pop();
+      queue.pop_front();
+
     }
-    float delta[N];
-    for (int j = 0; j < numVert; j++)
-    {
-      delta[j] = 0;
-    }
+
+
     while (!stack.empty())
     {
-      unsigned w = stack.pop();
+      unsigned w = stack.back();
+
       if (source != w)
       {
         btwn[w] = btwn[w] + delta[w];
       }
-      for (unsigned int it = p[w].start_pointer(); it != p[w].end_pointer(); it++)
+
+      float sigma_w = sigma[w];
+      float delta_w = delta[w];
+
+      for (int k = 0; k < cnt[w]; k++)
       {
-        unsigned v = p[w].get_element(it);
-        delta[v] = delta[v] + (sigma[v] / sigma[w]) * (1 + delta[w]);
+#pragma HLS pipeline
+        unsigned v = p[w][k];
+
+        delta[v] = delta[v] + (sigma[v] / sigma_w) * (1 + delta_w);
         // if (source != w) {
         //     btwn[w] = btwn[w] + delta[w];
         // }
       }
-      stack.pop();
+      //return;
+      stack.pop_back();
+
     }
 
   }
-  /*
-  for (int i = 0; i < numVert; i++)
-  {
-    btwn[i] = i;
-  }*/
 #endif
 }
