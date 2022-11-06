@@ -20,13 +20,8 @@ int main()
         fscanf(fp, "%d", &in);
         input[i] = in;
     }
-
-#ifdef CPU
-    harris_cpu(input, output, a);
-#else
-    harris(input, output, a);
-#endif 
-	
+ 
+	harris(input, output, a);
 	
     int tf = 0;
  
@@ -36,7 +31,6 @@ int main()
         if (output[i] - gold != 0)
         {
             tf = tf + 1;
-            // cout << i << " " << output[i] << " " << gold << endl;
         }        
     }
 
