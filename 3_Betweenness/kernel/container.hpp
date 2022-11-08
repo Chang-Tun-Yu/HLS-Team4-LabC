@@ -1,13 +1,16 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include "ap_int.h"
 using namespace std;
 
 #define N 3534
 #define L 24
 #define E 41594
 
-typedef unsigned int data_t;
+typedef ap_uint<16> data_t;
+typedef ap_int<16> DIST_TYPE;
+
 typedef bool flag_t;
 //Stack Class
 template<class data_T, class flag_T>
