@@ -268,22 +268,37 @@ extern "C" void dut(
       _column[i] = column[i];
     }    
   }
-  
+
+	float delta1[N], delta2[N];
+	float sigma1[N], sigma2[N];
+	static Stack<data_t, flag_t> stack1, stack2;
+	unsigned int p1[N][L], p2[N][L];
+	unsigned int cnt1[N], cnt2[N];
+
+    BFS(numVert, sigma1, stack1, _offset, _column, 0, p1, cnt1);
+
   each_source: for (int i = 0; i < numVert; i++)
   {
-    wrapper(numVert, i,_offset, _column, _btwn);
-	/*if(i%2 == 0)
+    //wrapper(numVert, i,_offset, _column, _btwn);
+	if(i%2 == 0)
 	{
-		BFS(numVert, sigma1, stack1, offset, column, i, p1, cnt1);
-		BACK(numVert, delta1, sigma1, stack1, btwn, i, p1, cnt1);
+		BACK(numVert, delta1, sigma1, stack1, _btwn, i, p1, cnt1);
+        BFS(numVert, sigma2, stack2, _offset, _column, i+1, p2, cnt2);
 	}
 	else
 	{
-		BFS(numVert, sigma2, stack2, offset, column, i, p2, cnt2);
-		BACK(numVert, delta2, sigma2, stack2, btwn, i, p2, cnt2);
-	}*/
+        BACK(numVert, delta2, sigma2, stack2, _btwn, i, p2, cnt2);
+		BFS(numVert, sigma1, stack1, _offset, _column, i+1, p1, cnt1);
+	}
 
   }
+  
+  if(numVert % 2 == 0)
+    BACK(numVert, delta2, sigma2, stack2, _btwn, numVert-1, p2, cnt2);
+  else
+    BACK(numVert, delta1, sigma1, stack1, _btwn, numVert-1, p1, cnt1);
+
+
   write_btwn: for (int i = 0; i < numVert; i++)
   {
     #pragma HLS PIPELINE II=1
