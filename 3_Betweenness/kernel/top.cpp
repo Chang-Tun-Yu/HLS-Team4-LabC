@@ -8,20 +8,22 @@ void BFS(
 	unsigned numVert,
 	float sigma[N],
 	Stack<data_t, flag_t> &stack,
-    unsigned offset[N],
-    unsigned *column,
-	unsigned i,
+    unsigned offset[N+1],
+    unsigned column[E],
 	unsigned int p[N][L],
+  unsigned i_source,
+  unsigned &o_source,
 	unsigned int cnt[N]
 )
 {
+  // for (unsigned i=0; i < numVert; i++) {
     int   dist[N];
     static Queue<data_t, flag_t> queue;
-    unsigned source = i;
+    unsigned source = i_source;
 
     stack.reset();
     queue.reset();
-    for (int j = 0; j < numVert; j++)
+    each_vert: for (int j = 0; j < numVert; j++)
     {
       sigma[j] = 0;
       dist[j] = -1;
@@ -31,23 +33,18 @@ void BFS(
     dist[source] = 0;
 
     queue.push_back(source);
-    while (!queue.empty())
+    each_child: while (!queue.empty())
     {
       unsigned v = queue.front();
 
       stack.push_back(v);
       unsigned start = offset[v];
       unsigned end = offset[v+1];
-      unsigned len = end-start;
+
       int dist_v = dist[v];
       float sigma_v= sigma[v];
-      unsigned column_tmp[L];
-      for(unsigned j = 0; j < len; j++)
-      {
-    	  column_tmp[j] = column[j+start];
-      }
 	  
-      for (unsigned j = 0; j < len; j++)
+      for (unsigned j = start; j < end; j++)
       {
 #pragma HLS pipeline
 #pragma HLS dependence variable=sigma type=inter false
@@ -55,7 +52,7 @@ void BFS(
 #pragma HLS dependence variable=dist type=inter false
 #pragma HLS dependence variable=p type=inter false
 
-    	  unsigned w = column_tmp[j];
+    	  unsigned w = column[j];
         int dist_w = dist[w];
         bool flag = false;
         if (dist_w < 0)
@@ -76,6 +73,8 @@ void BFS(
       queue.pop_front();
 
     }
+    o_source = source;
+  // }
 }
 void BACK(
 	unsigned numVert,
@@ -83,17 +82,19 @@ void BACK(
 	float sigma[N],
 	Stack<data_t, flag_t> &stack,
 	float btwn[N+1],
-	unsigned source,
+  unsigned i,
 	unsigned int p[N][L],
 	unsigned int cnt[N]
 )
 {
-	for (int j = 0; j < numVert; j++)
-	{
-		delta[j] = 0;
-	}
+  // for (unsigned i=0; i < numVert; i++) {
+    unsigned source = i;
+    init: for (int j = 0; j < numVert; j++)
+    {
+      delta[j] = 0;
+    }
 
-    while (!stack.empty())
+    each_vert: while (!stack.empty())
     {
       unsigned w = stack.back();
 
@@ -105,7 +106,7 @@ void BACK(
       float sigma_w = sigma[w];
       float delta_w = delta[w];
 
-      for (int k = 0; k < cnt[w]; k++)
+      each_parents: for (int k = 0; k < cnt[w]; k++)
       {
 #pragma HLS pipeline
 #pragma HLS dependence variable=delta type=inter false
@@ -121,7 +122,31 @@ void BACK(
       stack.pop_back();
 
     }
+  // }
 }
+
+void wrapper(
+    unsigned numVert,
+    unsigned i,
+    unsigned offset[N+1],
+    unsigned column[E],
+    float btwn[N]
+ ) {
+    #pragma HLS allocation instances=BFS limit=1 function
+    #pragma HLS allocation instances=BACK limit=1 function
+    #pragma HLS DATAFLOW
+
+	float delta1[N]; //, delta2[N];
+	float sigma1[N]; //, sigma2[N];
+	Stack<data_t, flag_t> stack1; //, stack2;
+	unsigned int p1[N][L]; //, p2[N][L];
+	unsigned int cnt1[N]; //, cnt2[N];
+	unsigned source_channel;
+    BFS(numVert, sigma1, stack1, offset, column, p1, i, source_channel, cnt1);
+	  BACK(numVert, delta1, sigma1, stack1, btwn, source_channel, p1, cnt1);
+  // }
+}
+
 extern "C" void dut(
     unsigned numVert,
     unsigned numEdge,
@@ -227,29 +252,26 @@ extern "C" void dut(
     }
   }
 #else
-#pragma HLS allocation instances=BFS limit=1 function
-#pragma HLS allocation instances=BACK limit=1 function
+
   float _btwn[N+1];
   unsigned _offset[N+1];
-  for (int i = 0; i <= numVert; i++)
+  unsigned _column[E];
+  read_data: for (int i = 0; i < numEdge; i++)
   {
     #pragma HLS PIPELINE II=1
-    _offset[i] = offset[i];
-    _btwn[i] = 0;
+    if (i <= numVert ) {
+      _offset[i] = offset[i];
+      _btwn[i] = 0;
+      _column[i] = column[i];
+    }
+    else {
+      _column[i] = column[i];
+    }    
   }
-  for (int i = 0; i < numVert; i++)
+  
+  each_source: for (int i = 0; i < numVert; i++)
   {
-#pragma HLS dataflow
-
-	float delta1[N]; //, delta2[N];
-	float sigma1[N]; //, sigma2[N];
-	static Stack<data_t, flag_t> stack1; //, stack2;
-	unsigned int p1[N][L]; //, p2[N][L];
-	unsigned int cnt1[N]; //, cnt2[N];
-	//unsigned source = i;
-
-    BFS(numVert, sigma1, stack1, _offset, column, i, p1, cnt1);
-	  BACK(numVert, delta1, sigma1, stack1, _btwn, i, p1, cnt1);
+    wrapper(numVert, i,_offset, _column, _btwn);
 	/*if(i%2 == 0)
 	{
 		BFS(numVert, sigma1, stack1, offset, column, i, p1, cnt1);
@@ -262,7 +284,7 @@ extern "C" void dut(
 	}*/
 
   }
-  for (int i = 0; i < numVert; i++)
+  write_btwn: for (int i = 0; i < numVert; i++)
   {
     #pragma HLS PIPELINE II=1
     btwn[i] = _btwn[i];
