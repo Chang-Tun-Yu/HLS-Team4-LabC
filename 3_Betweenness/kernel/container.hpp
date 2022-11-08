@@ -4,7 +4,7 @@
 using namespace std;
 
 #define N 3534
-#define L 20
+#define L 24
 #define E 41594
 
 typedef unsigned int data_t;

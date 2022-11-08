@@ -11,3 +11,8 @@
 # vivado
 *.dcp
 *.wdb
+
+**/3_Betweenness
+!**/3_Betweenness/data
+!**/3_Betweenness/host
+!**/3_Betweenness/kernel
