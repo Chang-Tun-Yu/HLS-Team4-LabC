@@ -1,213 +1,59 @@
-#include<math.h>
+//#include<math.h>
 #include "dft.h"
 #include"coefficients1024.h"
+#include "cstring"
 
-#ifdef ONE_PORT
-
-void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE])
-{
-#pragma HLS INTERFACE mode=s_axlite port=return
-#pragma HLS INTERFACE mode=m_axi depth=1024 port=real_sample
-#pragma HLS INTERFACE mode=m_axi depth=1024 port=imag_sample
-
-
-	DTYPE real_out[SIZE];
-	DTYPE image_out[SIZE];
-	DTYPE STEP = 2 * M_PI / SIZE;
-
-	for(int k = 0; k < SIZE; k++)
-	{
-		real_out[k] = 0;
-		image_out[k] = 0;
-	}
-
-	dft_label0:for(int k = 0; k < SIZE; k++)
-	{
-		dft_label1:for(int n = 0; n < SIZE; n++)
-		{
-
-			real_out[k] += (real_sample[n] * cos(k*n*STEP) - imag_sample[n] * sin(k*n*STEP));
-			image_out[k] += (imag_sample[n] * cos(k*n*STEP) - real_sample[n] * sin(k*n*STEP));
-		}
-	}
-
-	for(int k = 0; k < SIZE; k++)
-	{
-		real_sample[k] = real_out[k];
-		imag_sample[k] = image_out[k];
-	}
-
-
-	return;
-}
-#else
-#ifdef USE_DATAFLOW
-void load2(int k, DTYPE real_out[SIZE], DTYPE image_out[SIZE], DTYPE &real_tmp, DTYPE &imag_tmp)
-{
-	real_tmp = real_out[k];
-	imag_tmp = image_out[k];
-}
-void load(int k, int n, DTYPE &c, DTYPE &s)
-{
-	int index = (k*(n)) & (SIZE-1);
-	c = cos_coefficients_table[index];
-	s = sin_coefficients_table[index];
-}
-void pre_cal(DTYPE real, DTYPE imag, DTYPE c, DTYPE s, DTYPE &rc, DTYPE &is, DTYPE &rs, DTYPE &ic)
-{
-	rc = real * c;
-	is = imag * s;
-	rs = real * s;
-	ic = imag * c;
-}
-void cal(DTYPE rc, DTYPE is, DTYPE rs, DTYPE ic, DTYPE real_tmp, DTYPE imag_tmp, DTYPE &real_tmp2, DTYPE &imag_tmp2)
-{
-#pragma HLS PIPELINE
-	real_tmp2 = real_tmp + (rc + is);
-	imag_tmp2 = imag_tmp + (rs - ic);
-}
-void store(int k, DTYPE real_tmp2, DTYPE imag_tmp2, DTYPE real_out[SIZE], DTYPE image_out[SIZE])
+void dft(  DTYPE *real_sample,   DTYPE  *imag_sample,  DTYPE *real_op,  DTYPE *imag_op)	//Use pointers while doing the demo for streaming//
 {
 
-	real_out[k] = real_tmp2;
-	image_out[k] = imag_tmp2;
-}
-void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE], DTYPE real_out[SIZE], DTYPE image_out[SIZE])
-{
+#pragma HLS INTERFACE s_axilite port=return
+#pragma HLS INTERFACE s_axilite port=real_sample
+#pragma HLS INTERFACE s_axilite port=imag_sample
+#pragma HLS INTERFACE s_axilite port=real_op
+#pragma HLS INTERFACE s_axilite port=imag_op
+#pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=real_sample bundle=input_re_r
+#pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=imag_sample bundle=input_im_r
+#pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=real_op bundle=output_re_r
+#pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=imag_op bundle=output_im_r
+
 	//Write your code here
-#pragma HLS INTERFACE mode=s_axlite port=return
-#pragma HLS INTERFACE mode=m_axi bundle=A depth=1024 port=real_sample
-#pragma HLS INTERFACE mode=m_axi bundle=B depth=1024 port=imag_sample
-#pragma HLS INTERFACE mode=m_axi bundle=C depth=1024 port=real_out
-#pragma HLS INTERFACE mode=m_axi bundle=D depth=1024 port=image_out
+	DTYPE re_sample[SIZE];
+	DTYPE im_sample[SIZE];
+	DTYPE re_buff[SIZE];
+	DTYPE im_buff[SIZE];
+#pragma HLS ARRAY_PARTITION variable=cos_coefficients_table type=cyclic factor=32
+#pragma HLS ARRAY_PARTITION variable=sin_coefficients_table type=cyclic factor=32
+#pragma HLS ARRAY_PARTITION variable=re_buff type=cyclic factor=32
+#pragma HLS ARRAY_PARTITION variable=im_buff type=cyclic factor=32
 
+	int n,k;
 
-	dft_label0:for(int n = 0; n < SIZE; n++)
+	//memcpy(re_sample,(const float*)real_sample,sizeof(DTYPE)*SIZE);
+	//memcpy(im_sample,(const float*)imag_sample,sizeof(DTYPE)*SIZE);
+	for(k=0; k<SIZE; k++)
 	{
-
-
-		//int index = 0;
-		DTYPE c;
-		DTYPE s;
-		DTYPE rc;
-		DTYPE is;
-		DTYPE rs;
-		DTYPE ic;
-		DTYPE real_tmp, imag_tmp;
-		DTYPE real_tmp2, imag_tmp2;
-		DTYPE real = real_sample[n];
-		DTYPE imag = imag_sample[n];
-		dft_label1:for(int k = 0; k < SIZE; k++)
-		{
-			#pragma HLS DATAFLOW
-			load2(k, real_out, image_out, real_tmp, imag_tmp);
-			load(k, n, c, s);
-			pre_cal(real, imag, c, s, rc, is, rs, ic);
-			cal(rc, is, rs, ic, real_tmp, imag_tmp, real_tmp2, imag_tmp2);
-			store(k, real_tmp2, imag_tmp2, real_out, image_out);
-		}
-
+		re_sample[k]=real_sample[k];
+		im_sample[k]=imag_sample[k];
+		re_buff[k]=0;
+		im_buff[k]=0;
 	}
-	return;
+
+	loop_k: for (n=0 ; n<SIZE ; ++n){
+
+		loop_n: for (k=0 ; k<SIZE ; ++k) {
+#pragma HLS pipeline II=11
+#pragma HLS UNROLL factor=32
+			/*if(0==n){
+				Xre= 0;
+				Xim= 0;
+			}*/
+			float c = cos_coefficients_table[n*k %SIZE];
+			float s = sin_coefficients_table[n*k %SIZE];
+
+			re_buff[k] += re_sample[n] * c + im_sample[n] * s;
+			im_buff[k] += re_sample[n] * s - im_sample[n] * c;
+	    }
+	 }
+	memcpy(real_op,(const float*)re_buff,sizeof(DTYPE)*SIZE);
+	memcpy(imag_op,(const float*)im_buff,sizeof(DTYPE)*SIZE);
 }
-#else
-#ifdef STREAM
-void dft(hls::stream<DTYPE> *real_sample, hls::stream<DTYPE> *imag_sample, hls::stream<DTYPE> *real_out, hls::stream<DTYPE> *image_out)
-{
-	//Write your code here
-#pragma HLS INTERFACE mode=s_axlite port=return
-#pragma HLS STREAM variable= real_sample depth=1024
-#pragma HLS STREAM variable= imag_sample depth=1024
-#pragma HLS STREAM variable= real_out depth=1024
-#pragma HLS STREAM variable= image_out depth=1024
-
-	DTYPE real_tmp[SIZE];
-	DTYPE imag_tmp[SIZE];
-	for(int n = 0; n < SIZE; n++)
-	{
-		real_tmp[n] = 0;
-		imag_tmp[n] = 0;
-	}
-	dft_label0:for(int n = 0; n < SIZE; n++)
-	{
-		int index = 0;
-		DTYPE c, s;
-		DTYPE rc, is, rs, ic;
-		DTYPE real = real_sample->read();
-		DTYPE image = imag_sample->read();
-
-		dft_label1:for(int k = 0; k < SIZE; k++)
-		{
-			#pragma HLS PIPELINE II=1
-			index = (k*(n)) & (SIZE-1);
-			c = cos_coefficients_table[index];
-			s = sin_coefficients_table[index];
-			rc = real  * c;
-			is = image * s;
-			rs = real  * s;
-			ic = image * c;
-			real_tmp[k] += (rc + is);
-			imag_tmp[k] += (rs - ic);
-		}
-	}
-	for(int n = 0; n < SIZE; n++)
-	{
-		real_out->write(real_tmp[n]);
-		image_out->write(imag_tmp[n]);
-	}
-	return;
-}
-#else
-void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE], DTYPE real_out[SIZE], DTYPE image_out[SIZE])
-{
-	//Write your code here
-#pragma HLS INTERFACE mode=s_axlite port=return
-#pragma HLS INTERFACE mode=m_axi bundle=A depth=1024 port=real_sample
-#pragma HLS INTERFACE mode=m_axi bundle=B depth=1024 port=imag_sample
-#pragma HLS INTERFACE mode=m_axi bundle=C depth=1024 port=real_out
-#pragma HLS INTERFACE mode=m_axi bundle=D depth=1024 port=image_out
-
-//#pragma HLS array_partition variable=cos_coefficients_table cyclic factor=1 dim=1
-//#pragma HLS array_partition variable=sin_coefficients_table cyclic factor=1 dim=1
-	//new_ver
-
-	dft_label0:for(int n = 0; n < SIZE; n++)
-	{
-
-
-		int index = 0;
-		DTYPE c;
-		DTYPE s;
-		DTYPE rc;
-		DTYPE is;
-		DTYPE rs;
-		DTYPE ic;
-
-		dft_label1:for(int k = 0; k < SIZE; k++)
-		{
-			#pragma HLS PIPELINE II=1
-			//#pragma HLS UNROLL skip_exit_check factor=1
-
-
-			index = (k*(n)) & (SIZE-1);
-			c = cos_coefficients_table[index];
-			s = sin_coefficients_table[index];
-			rc = real_sample[n] * c;
-			is = imag_sample[n] * s;
-			rs = real_sample[n] * s;
-			ic = imag_sample[n] * c;
-
-			real_out[k] += (rc + is);
-			image_out[k] += (rs - ic);
-
-
-
-		}
-
-	}
-
-	return;
-}
-#endif
-#endif
-#endif
