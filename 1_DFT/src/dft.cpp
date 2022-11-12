@@ -1,35 +1,22 @@
-//#include<math.h>
+#include<math.h>
 #include "dft.h"
 #include"coefficients1024.h"
 #include "cstring"
 
-void dft(  DTYPE *real_sample,   DTYPE  *imag_sample,  DTYPE *real_op,  DTYPE *imag_op)	//Use pointers while doing the demo for streaming//
+void dft(DTYPE real_sample[1024], DTYPE imag_sample[1024],DTYPE real_op[1024],DTYPE imag_op[1024])	//Use pointers while doing the demo for streaming//
 {
-
 #pragma HLS INTERFACE s_axilite port=return
-#pragma HLS INTERFACE s_axilite port=real_sample
-#pragma HLS INTERFACE s_axilite port=imag_sample
-#pragma HLS INTERFACE s_axilite port=real_op
-#pragma HLS INTERFACE s_axilite port=imag_op
 #pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=real_sample bundle=input_re_r
 #pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=imag_sample bundle=input_im_r
 #pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=real_op bundle=output_re_r
 #pragma HLS INTERFACE m_axi depth=1024 max_widen_bitwidth=512 max_read_burst_length=256 num_read_outstanding=256 port=imag_op bundle=output_im_r
-
 	//Write your code here
 	DTYPE re_sample[SIZE];
 	DTYPE im_sample[SIZE];
 	DTYPE re_buff[SIZE];
 	DTYPE im_buff[SIZE];
-#pragma HLS ARRAY_PARTITION variable=cos_coefficients_table type=cyclic factor=32
-#pragma HLS ARRAY_PARTITION variable=sin_coefficients_table type=cyclic factor=32
-#pragma HLS ARRAY_PARTITION variable=re_buff type=cyclic factor=32
-#pragma HLS ARRAY_PARTITION variable=im_buff type=cyclic factor=32
-
+#pragma HLS ARRAY_PARTITION variable=cos_coefficients_table,sin_coefficients_table,re_buff,im_buff type=cyclic factor=32
 	int n,k;
-
-	//memcpy(re_sample,(const float*)real_sample,sizeof(DTYPE)*SIZE);
-	//memcpy(im_sample,(const float*)imag_sample,sizeof(DTYPE)*SIZE);
 	for(k=0; k<SIZE; k++)
 	{
 		re_sample[k]=real_sample[k];
@@ -37,19 +24,12 @@ void dft(  DTYPE *real_sample,   DTYPE  *imag_sample,  DTYPE *real_op,  DTYPE *i
 		re_buff[k]=0;
 		im_buff[k]=0;
 	}
-
 	loop_k: for (n=0 ; n<SIZE ; ++n){
-
 		loop_n: for (k=0 ; k<SIZE ; ++k) {
-#pragma HLS pipeline II=11
-#pragma HLS UNROLL factor=32
-			/*if(0==n){
-				Xre= 0;
-				Xim= 0;
-			}*/
+			#pragma HLS pipeline II=11
+			#pragma HLS UNROLL factor=32
 			float c = cos_coefficients_table[n*k %SIZE];
 			float s = sin_coefficients_table[n*k %SIZE];
-
 			re_buff[k] += re_sample[n] * c + im_sample[n] * s;
 			im_buff[k] += re_sample[n] * s - im_sample[n] * c;
 	    }

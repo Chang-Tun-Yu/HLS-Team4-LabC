@@ -1,15 +1,6 @@
 //#include <ap_int.h>
-#include "ap_axi_sdata.h"
-#include "hls_stream.h"
-/*					Sample structure for streaming. You can use this for the demo.
-struct DTYPE							
-{
-	float data;
-	ap_uint<1> last;
-};
-*/
-
+//#include "ap_axi_sdata.h"
+//#include "hls_stream.h"
 typedef float DTYPE;
 #define SIZE 1024 		/* SIZE OF DFT */
-//void dft(DTYPE real_sample[SIZE], DTYPE imag_sample[SIZE],DTYPE real_op[SIZE], DTYPE imag_op[SIZE]);
-void dft(DTYPE *, DTYPE *,DTYPE *, DTYPE *); //use this for doing the demo//
+void dft(DTYPE real_sample[1024], DTYPE imag_sample[1024],DTYPE real_op[1024], DTYPE imag_op[1024]);
