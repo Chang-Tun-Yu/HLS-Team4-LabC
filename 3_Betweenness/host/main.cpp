@@ -19,6 +19,7 @@
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define MUTE
 
 #include <vector>
 #include <cstring>
@@ -79,7 +80,7 @@ class result
 {
 public:
     unsigned vertex;
-    float betweenness;
+    double betweenness;
 };
 
 bool operator<(const result &r1, const result &r2)
@@ -106,7 +107,7 @@ bool operator>(const result &r1, const result &r2)
     }
 }
 
-void betweenness(unsigned numVert, unsigned numEdge, unsigned *offset, unsigned *column, float *btwn)
+void betweenness(unsigned numVert, unsigned numEdge, unsigned *offset, unsigned *column, double *btwn)
 {
     for (int i = 0; i < numVert; i++)
     {
@@ -116,7 +117,7 @@ void betweenness(unsigned numVert, unsigned numEdge, unsigned *offset, unsigned 
     {
         std::stack<unsigned> s;
         std::vector<std::list<unsigned>> p(numVert);
-        std::vector<float> sigma(numVert);
+        std::vector<double> sigma(numVert);
         std::vector<int> dist(numVert);
         std::queue<unsigned> q;
         unsigned source = i;
@@ -151,7 +152,7 @@ void betweenness(unsigned numVert, unsigned numEdge, unsigned *offset, unsigned 
             q.pop();
         }
 
-        std::vector<float> delta(numVert);
+        std::vector<double> delta(numVert);
         for (int j = 0; j < numVert; j++)
         {
             delta[j] = 0;
@@ -258,7 +259,9 @@ int main(int argc, const char *argv[])
 
     // timing checker
     struct timeval start_time;
+#ifndef MUTE
     xf::common::utils_sw::Logger logger(std::cout, std::cerr);
+#endif
     gettimeofday(&start_time, 0);
 
     // platform related operations
@@ -269,21 +272,34 @@ int main(int argc, const char *argv[])
     // Step 1: Initialize the OpenCL environment
     // Creating Context and Command Queeu for selected Device
     cl::Context context(device, NULL, NULL, NULL, &err);
+#ifndef MUTE
     logger.logCreateContext(err);
-    cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
-    logger.logCreateCommandQueue(err);
+#endif
 
+    cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+#ifndef MUTE
+    logger.logCreateCommandQueue(err);
+#endif
+
+#ifndef MUTE
     std::string devName = device.getInfo<CL_DEVICE_NAME>();
     printf("Found Device=%s\n", devName.c_str());
+#endif
 
     cl::Program::Binaries xclBins = xcl::import_binary_file(xclbin_path);
     devices.resize(1);
     cl::Program program(context, devices, xclBins, NULL, &err);
+#ifndef MUTE
     logger.logCreateProgram(err);
+#endif
+
 
     cl::Kernel dut(program, "dut", &err);
+#ifndef MUTE
     logger.logCreateProgram(err);
     std::cout << "kernel has been created" << std::endl;
+#endif
+
 
     // Config paras
     unsigned numVert;
@@ -292,11 +308,7 @@ int main(int argc, const char *argv[])
     // Get device buffer
     cl::Buffer db_offset(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
     cl::Buffer db_column(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
-    cl::Buffer db_tmp0(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
-    cl::Buffer db_tmp1(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
-    cl::Buffer db_tmp2(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
-    cl::Buffer db_tmp3(context, CL_MEM_ALLOC_HOST_PTR, sizeof(unsigned) * INTERFACE_MEMSIZE, NULL);
-    cl::Buffer db_btwn(context, CL_MEM_ALLOC_HOST_PTR, sizeof(float) * INTERFACE_MEMSIZE, NULL);
+    cl::Buffer db_btwn(context, CL_MEM_ALLOC_HOST_PTR, sizeof(double) * INTERFACE_MEMSIZE, NULL);
 
     // Map buffers to kernel arguments, thereby assigning them to specific device memory banks
     dut.setArg(0, numVert);
@@ -304,32 +316,17 @@ int main(int argc, const char *argv[])
     dut.setArg(2, db_offset);
     dut.setArg(3, db_column);
     dut.setArg(4, db_btwn);
-    dut.setArg(5, db_tmp0);
-    dut.setArg(6, db_tmp1);
-    dut.setArg(7, db_tmp2);
-    dut.setArg(8, db_tmp3);
 
     // Get host buffer
     unsigned *hb_offset = (unsigned *)q.enqueueMapBuffer(db_offset, CL_TRUE, CL_MAP_WRITE, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
     unsigned *hb_column = (unsigned *)q.enqueueMapBuffer(db_column, CL_TRUE, CL_MAP_WRITE, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
-    unsigned *hb_tmp0 =
-        (unsigned *)q.enqueueMapBuffer(db_tmp0, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
-    unsigned *hb_tmp1 =
-        (unsigned *)q.enqueueMapBuffer(db_tmp1, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
-    unsigned *hb_tmp2 =
-        (unsigned *)q.enqueueMapBuffer(db_tmp2, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
-    unsigned *hb_tmp3 =
-        (unsigned *)q.enqueueMapBuffer(db_tmp3, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(unsigned) * INTERFACE_MEMSIZE);
-    float *hb_btwn =
-        (float *)q.enqueueMapBuffer(db_btwn, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(float) * INTERFACE_MEMSIZE);
+    double *hb_btwn =
+        (double *)q.enqueueMapBuffer(db_btwn, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * INTERFACE_MEMSIZE);
 
     // Initialize the memory used in test from host-side
     for (int i = 0; i < INTERFACE_MEMSIZE; i++)
     {
-        hb_tmp0[i] = 0;
-        hb_tmp1[i] = 0;
-        hb_tmp2[i] = 0;
-        hb_tmp3[i] = 0;
+
         hb_btwn[i] = 0;
     }
 
@@ -347,15 +344,7 @@ int main(int argc, const char *argv[])
 
     ob_in.push_back(db_offset);
     ob_in.push_back(db_column);
-    ob_in.push_back(db_tmp0);
-    ob_in.push_back(db_tmp1);
-    ob_in.push_back(db_tmp2);
-    ob_in.push_back(db_tmp3);
 
-    ob_out.push_back(db_tmp0);
-    ob_out.push_back(db_tmp1);
-    ob_out.push_back(db_tmp2);
-    ob_out.push_back(db_tmp3);
     ob_out.push_back(db_btwn);
 
     // declare events
@@ -377,10 +366,6 @@ int main(int argc, const char *argv[])
     dut.setArg(2, db_offset);
     dut.setArg(3, db_column);
     dut.setArg(4, db_btwn);
-    dut.setArg(5, db_tmp0);
-    dut.setArg(6, db_tmp1);
-    dut.setArg(7, db_tmp2);
-    dut.setArg(8, db_tmp3);
 
     // Schedule transfer of inputs to device memory, execution of kernel, and transfer of outputs back to host memory
     q.enqueueMigrateMemObjects(ob_in, 0, nullptr, &events_write[0]);
@@ -436,15 +421,12 @@ int main(int argc, const char *argv[])
     }
     unsigned *offset32_golden = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
     unsigned *column32_golden = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
-    unsigned *tmp0 = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
-    unsigned *tmp1 = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
-    unsigned *tmp2 = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
-    unsigned *tmp3 = aligned_alloc<unsigned>(INTERFACE_MEMSIZE);
+
 
     std::cout << "graph loading for betweenness golden..." << std::endl;
     csr_graph_loading(filename_offsets, filename_index, offset32_golden, column32_golden, &numVertices, &numEdges);
 
-    float *btwn_gold = aligned_alloc<float>(numVertices);
+    double *btwn_gold = aligned_alloc<double>(numVertices);
     for (int i = 0; i < numVertices; i++)
     {
         btwn_gold[i] = 0;
