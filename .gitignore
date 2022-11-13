@@ -11,9 +11,16 @@
 # vivado
 *.dcp
 *.wdb
+*.log
 
-**/3_Betweenness
-!**/3_Betweenness/data
-!**/3_Betweenness/host
-!**/3_Betweenness/kernel
-!3_Betweenness/inst.txt
+/3_Betweenness/hls
+/3_Betweenness/proj
+/3_Betweenness/report
+/3_Betweenness/kernel/*.py
+/3_Betweenness/kernel/*.txt
+/3_Betweenness/*.txt
+/3_Betweenness/*.[c/h]pp
+/3_Betweenness/*.sh
+/3_Betweenness/*.tcl
+/3_Betweenness/*.ini
+

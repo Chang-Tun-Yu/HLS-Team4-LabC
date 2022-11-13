@@ -4,7 +4,7 @@
 #include <queue>
 #include <stack>
 #include <math.h>
-#define UNROLL_FACTOR 16
+#define UNROLL_FACTOR 12
 template<int ID>
 void BFS(
 	unsigned numVert,
@@ -170,6 +170,10 @@ _offset[4][i] = offset[i];
 _offset[5][i] = offset[i];
 _offset[6][i] = offset[i];
 _offset[7][i] = offset[i];
+_offset[8][i] = offset[i];
+_offset[9][i] = offset[i];
+_offset[10][i] = offset[i];
+_offset[11][i] = offset[i];
 _btwn[0][i] = 0;
 _btwn[1][i] = 0;
 _btwn[2][i] = 0;
@@ -178,6 +182,10 @@ _btwn[4][i] = 0;
 _btwn[5][i] = 0;
 _btwn[6][i] = 0;
 _btwn[7][i] = 0;
+_btwn[8][i] = 0;
+_btwn[9][i] = 0;
+_btwn[10][i] = 0;
+_btwn[11][i] = 0;
 _column[0][i] = column[i];
 _column[1][i] = column[i];
 _column[2][i] = column[i];
@@ -186,6 +194,10 @@ _column[4][i] = column[i];
 _column[5][i] = column[i];
 _column[6][i] = column[i];
 _column[7][i] = column[i];
+_column[8][i] = column[i];
+_column[9][i] = column[i];
+_column[10][i] = column[i];
+_column[11][i] = column[i];
 }
 else { 
 _column[0][i] = column[i];
@@ -196,6 +208,10 @@ _column[4][i] = column[i];
 _column[5][i] = column[i];
 _column[6][i] = column[i];
 _column[7][i] = column[i];
+_column[8][i] = column[i];
+_column[9][i] = column[i];
+_column[10][i] = column[i];
+_column[11][i] = column[i];
 }
   }
 
@@ -229,6 +245,10 @@ BFS<4>(numVert, sigma1[4], stack1[4], _offset[4], _column[4], 4, p1[4], cnt1[4])
 BFS<5>(numVert, sigma1[5], stack1[5], _offset[5], _column[5], 5, p1[5], cnt1[5]);
 BFS<6>(numVert, sigma1[6], stack1[6], _offset[6], _column[6], 6, p1[6], cnt1[6]);
 BFS<7>(numVert, sigma1[7], stack1[7], _offset[7], _column[7], 7, p1[7], cnt1[7]);
+BFS<8>(numVert, sigma1[8], stack1[8], _offset[8], _column[8], 8, p1[8], cnt1[8]);
+BFS<9>(numVert, sigma1[9], stack1[9], _offset[9], _column[9], 9, p1[9], cnt1[9]);
+BFS<10>(numVert, sigma1[10], stack1[10], _offset[10], _column[10], 10, p1[10], cnt1[10]);
+BFS<11>(numVert, sigma1[11], stack1[11], _offset[11], _column[11], 11, p1[11], cnt1[11]);
 
 
   each_source: for (int i = 0; i < bound-1; i++) {
@@ -236,14 +256,18 @@ BFS<7>(numVert, sigma1[7], stack1[7], _offset[7], _column[7], 7, p1[7], cnt1[7])
 
 
   if(i%2 == 0) {
-BACK<0>(numVert, delta1[0], sigma1[0], stack1[0], _btwn[0],  UNROLL_FACTOR*i+0, p1[0], cnt1[0]);
-BACK<1>(numVert, delta1[1], sigma1[1], stack1[1], _btwn[1],  UNROLL_FACTOR*i+1, p1[1], cnt1[1]);
-BACK<2>(numVert, delta1[2], sigma1[2], stack1[2], _btwn[2],  UNROLL_FACTOR*i+2, p1[2], cnt1[2]);
-BACK<3>(numVert, delta1[3], sigma1[3], stack1[3], _btwn[3],  UNROLL_FACTOR*i+3, p1[3], cnt1[3]);
-BACK<4>(numVert, delta1[4], sigma1[4], stack1[4], _btwn[4],  UNROLL_FACTOR*i+4, p1[4], cnt1[4]);
-BACK<5>(numVert, delta1[5], sigma1[5], stack1[5], _btwn[5],  UNROLL_FACTOR*i+5, p1[5], cnt1[5]);
-BACK<6>(numVert, delta1[6], sigma1[6], stack1[6], _btwn[6],  UNROLL_FACTOR*i+6, p1[6], cnt1[6]);
-BACK<7>(numVert, delta1[7], sigma1[7], stack1[7], _btwn[7],  UNROLL_FACTOR*i+7, p1[7], cnt1[7]);
+BACK<0>(numVert, delta[0], sigma1[0], stack1[0], _btwn[0],  UNROLL_FACTOR*i+0, p1[0], cnt1[0]);
+BACK<1>(numVert, delta[1], sigma1[1], stack1[1], _btwn[1],  UNROLL_FACTOR*i+1, p1[1], cnt1[1]);
+BACK<2>(numVert, delta[2], sigma1[2], stack1[2], _btwn[2],  UNROLL_FACTOR*i+2, p1[2], cnt1[2]);
+BACK<3>(numVert, delta[3], sigma1[3], stack1[3], _btwn[3],  UNROLL_FACTOR*i+3, p1[3], cnt1[3]);
+BACK<4>(numVert, delta[4], sigma1[4], stack1[4], _btwn[4],  UNROLL_FACTOR*i+4, p1[4], cnt1[4]);
+BACK<5>(numVert, delta[5], sigma1[5], stack1[5], _btwn[5],  UNROLL_FACTOR*i+5, p1[5], cnt1[5]);
+BACK<6>(numVert, delta[6], sigma1[6], stack1[6], _btwn[6],  UNROLL_FACTOR*i+6, p1[6], cnt1[6]);
+BACK<7>(numVert, delta[7], sigma1[7], stack1[7], _btwn[7],  UNROLL_FACTOR*i+7, p1[7], cnt1[7]);
+BACK<8>(numVert, delta[8], sigma1[8], stack1[8], _btwn[8],  UNROLL_FACTOR*i+8, p1[8], cnt1[8]);
+BACK<9>(numVert, delta[9], sigma1[9], stack1[9], _btwn[9],  UNROLL_FACTOR*i+9, p1[9], cnt1[9]);
+BACK<10>(numVert, delta[10], sigma1[10], stack1[10], _btwn[10],  UNROLL_FACTOR*i+10, p1[10], cnt1[10]);
+BACK<11>(numVert, delta[11], sigma1[11], stack1[11], _btwn[11],  UNROLL_FACTOR*i+11, p1[11], cnt1[11]);
 BFS<0>(numVert, sigma2[0], stack2[0], _offset[0], _column[0], UNROLL_FACTOR*(i+1)+0, p2[0], cnt2[0]);
 BFS<1>(numVert, sigma2[1], stack2[1], _offset[1], _column[1], UNROLL_FACTOR*(i+1)+1, p2[1], cnt2[1]);
 BFS<2>(numVert, sigma2[2], stack2[2], _offset[2], _column[2], UNROLL_FACTOR*(i+1)+2, p2[2], cnt2[2]);
@@ -252,17 +276,25 @@ BFS<4>(numVert, sigma2[4], stack2[4], _offset[4], _column[4], UNROLL_FACTOR*(i+1
 BFS<5>(numVert, sigma2[5], stack2[5], _offset[5], _column[5], UNROLL_FACTOR*(i+1)+5, p2[5], cnt2[5]);
 BFS<6>(numVert, sigma2[6], stack2[6], _offset[6], _column[6], UNROLL_FACTOR*(i+1)+6, p2[6], cnt2[6]);
 BFS<7>(numVert, sigma2[7], stack2[7], _offset[7], _column[7], UNROLL_FACTOR*(i+1)+7, p2[7], cnt2[7]);
+BFS<8>(numVert, sigma2[8], stack2[8], _offset[8], _column[8], UNROLL_FACTOR*(i+1)+8, p2[8], cnt2[8]);
+BFS<9>(numVert, sigma2[9], stack2[9], _offset[9], _column[9], UNROLL_FACTOR*(i+1)+9, p2[9], cnt2[9]);
+BFS<10>(numVert, sigma2[10], stack2[10], _offset[10], _column[10], UNROLL_FACTOR*(i+1)+10, p2[10], cnt2[10]);
+BFS<11>(numVert, sigma2[11], stack2[11], _offset[11], _column[11], UNROLL_FACTOR*(i+1)+11, p2[11], cnt2[11]);
    }
 else
    {
-BACK<0>(numVert, delta2[0], sigma2[0], stack2[0], _btwn[0],  UNROLL_FACTOR*i+0, p2[0], cnt2[0]);
-BACK<1>(numVert, delta2[1], sigma2[1], stack2[1], _btwn[1],  UNROLL_FACTOR*i+1, p2[1], cnt2[1]);
-BACK<2>(numVert, delta2[2], sigma2[2], stack2[2], _btwn[2],  UNROLL_FACTOR*i+2, p2[2], cnt2[2]);
-BACK<3>(numVert, delta2[3], sigma2[3], stack2[3], _btwn[3],  UNROLL_FACTOR*i+3, p2[3], cnt2[3]);
-BACK<4>(numVert, delta2[4], sigma2[4], stack2[4], _btwn[4],  UNROLL_FACTOR*i+4, p2[4], cnt2[4]);
-BACK<5>(numVert, delta2[5], sigma2[5], stack2[5], _btwn[5],  UNROLL_FACTOR*i+5, p2[5], cnt2[5]);
-BACK<6>(numVert, delta2[6], sigma2[6], stack2[6], _btwn[6],  UNROLL_FACTOR*i+6, p2[6], cnt2[6]);
-BACK<7>(numVert, delta2[7], sigma2[7], stack2[7], _btwn[7],  UNROLL_FACTOR*i+7, p2[7], cnt2[7]);
+BACK<0>(numVert, delta[0], sigma2[0], stack2[0], _btwn[0],  UNROLL_FACTOR*i+0, p2[0], cnt2[0]);
+BACK<1>(numVert, delta[1], sigma2[1], stack2[1], _btwn[1],  UNROLL_FACTOR*i+1, p2[1], cnt2[1]);
+BACK<2>(numVert, delta[2], sigma2[2], stack2[2], _btwn[2],  UNROLL_FACTOR*i+2, p2[2], cnt2[2]);
+BACK<3>(numVert, delta[3], sigma2[3], stack2[3], _btwn[3],  UNROLL_FACTOR*i+3, p2[3], cnt2[3]);
+BACK<4>(numVert, delta[4], sigma2[4], stack2[4], _btwn[4],  UNROLL_FACTOR*i+4, p2[4], cnt2[4]);
+BACK<5>(numVert, delta[5], sigma2[5], stack2[5], _btwn[5],  UNROLL_FACTOR*i+5, p2[5], cnt2[5]);
+BACK<6>(numVert, delta[6], sigma2[6], stack2[6], _btwn[6],  UNROLL_FACTOR*i+6, p2[6], cnt2[6]);
+BACK<7>(numVert, delta[7], sigma2[7], stack2[7], _btwn[7],  UNROLL_FACTOR*i+7, p2[7], cnt2[7]);
+BACK<8>(numVert, delta[8], sigma2[8], stack2[8], _btwn[8],  UNROLL_FACTOR*i+8, p2[8], cnt2[8]);
+BACK<9>(numVert, delta[9], sigma2[9], stack2[9], _btwn[9],  UNROLL_FACTOR*i+9, p2[9], cnt2[9]);
+BACK<10>(numVert, delta[10], sigma2[10], stack2[10], _btwn[10],  UNROLL_FACTOR*i+10, p2[10], cnt2[10]);
+BACK<11>(numVert, delta[11], sigma2[11], stack2[11], _btwn[11],  UNROLL_FACTOR*i+11, p2[11], cnt2[11]);
 BFS<0>(numVert, sigma1[0], stack1[0], _offset[0], _column[0], UNROLL_FACTOR*(i+1)+0, p1[0], cnt1[0]);
 BFS<1>(numVert, sigma1[1], stack1[1], _offset[1], _column[1], UNROLL_FACTOR*(i+1)+1, p1[1], cnt1[1]);
 BFS<2>(numVert, sigma1[2], stack1[2], _offset[2], _column[2], UNROLL_FACTOR*(i+1)+2, p1[2], cnt1[2]);
@@ -271,33 +303,45 @@ BFS<4>(numVert, sigma1[4], stack1[4], _offset[4], _column[4], UNROLL_FACTOR*(i+1
 BFS<5>(numVert, sigma1[5], stack1[5], _offset[5], _column[5], UNROLL_FACTOR*(i+1)+5, p1[5], cnt1[5]);
 BFS<6>(numVert, sigma1[6], stack1[6], _offset[6], _column[6], UNROLL_FACTOR*(i+1)+6, p1[6], cnt1[6]);
 BFS<7>(numVert, sigma1[7], stack1[7], _offset[7], _column[7], UNROLL_FACTOR*(i+1)+7, p1[7], cnt1[7]);
+BFS<8>(numVert, sigma1[8], stack1[8], _offset[8], _column[8], UNROLL_FACTOR*(i+1)+8, p1[8], cnt1[8]);
+BFS<9>(numVert, sigma1[9], stack1[9], _offset[9], _column[9], UNROLL_FACTOR*(i+1)+9, p1[9], cnt1[9]);
+BFS<10>(numVert, sigma1[10], stack1[10], _offset[10], _column[10], UNROLL_FACTOR*(i+1)+10, p1[10], cnt1[10]);
+BFS<11>(numVert, sigma1[11], stack1[11], _offset[11], _column[11], UNROLL_FACTOR*(i+1)+11, p1[11], cnt1[11]);
    }
 
    }
 
 
   if(bound % 2 == 0) {
-BACK<0>(numVert, delta2[0], sigma2[0], stack2[0], _btwn[0],  UNROLL_FACTOR*(bound-1)+0, p2[0], cnt2[0]);
-BACK<1>(numVert, delta2[1], sigma2[1], stack2[1], _btwn[1],  UNROLL_FACTOR*(bound-1)+1, p2[1], cnt2[1]);
-BACK<2>(numVert, delta2[2], sigma2[2], stack2[2], _btwn[2],  UNROLL_FACTOR*(bound-1)+2, p2[2], cnt2[2]);
-BACK<3>(numVert, delta2[3], sigma2[3], stack2[3], _btwn[3],  UNROLL_FACTOR*(bound-1)+3, p2[3], cnt2[3]);
-BACK<4>(numVert, delta2[4], sigma2[4], stack2[4], _btwn[4],  UNROLL_FACTOR*(bound-1)+4, p2[4], cnt2[4]);
-BACK<5>(numVert, delta2[5], sigma2[5], stack2[5], _btwn[5],  UNROLL_FACTOR*(bound-1)+5, p2[5], cnt2[5]);
-BACK<6>(numVert, delta2[6], sigma2[6], stack2[6], _btwn[6],  UNROLL_FACTOR*(bound-1)+6, p2[6], cnt2[6]);
-BACK<7>(numVert, delta2[7], sigma2[7], stack2[7], _btwn[7],  UNROLL_FACTOR*(bound-1)+7, p2[7], cnt2[7]);
+BACK<0>(numVert, delta[0], sigma2[0], stack2[0], _btwn[0],  UNROLL_FACTOR*(bound-1)+0, p2[0], cnt2[0]);
+BACK<1>(numVert, delta[1], sigma2[1], stack2[1], _btwn[1],  UNROLL_FACTOR*(bound-1)+1, p2[1], cnt2[1]);
+BACK<2>(numVert, delta[2], sigma2[2], stack2[2], _btwn[2],  UNROLL_FACTOR*(bound-1)+2, p2[2], cnt2[2]);
+BACK<3>(numVert, delta[3], sigma2[3], stack2[3], _btwn[3],  UNROLL_FACTOR*(bound-1)+3, p2[3], cnt2[3]);
+BACK<4>(numVert, delta[4], sigma2[4], stack2[4], _btwn[4],  UNROLL_FACTOR*(bound-1)+4, p2[4], cnt2[4]);
+BACK<5>(numVert, delta[5], sigma2[5], stack2[5], _btwn[5],  UNROLL_FACTOR*(bound-1)+5, p2[5], cnt2[5]);
+BACK<6>(numVert, delta[6], sigma2[6], stack2[6], _btwn[6],  UNROLL_FACTOR*(bound-1)+6, p2[6], cnt2[6]);
+BACK<7>(numVert, delta[7], sigma2[7], stack2[7], _btwn[7],  UNROLL_FACTOR*(bound-1)+7, p2[7], cnt2[7]);
+BACK<8>(numVert, delta[8], sigma2[8], stack2[8], _btwn[8],  UNROLL_FACTOR*(bound-1)+8, p2[8], cnt2[8]);
+BACK<9>(numVert, delta[9], sigma2[9], stack2[9], _btwn[9],  UNROLL_FACTOR*(bound-1)+9, p2[9], cnt2[9]);
+BACK<10>(numVert, delta[10], sigma2[10], stack2[10], _btwn[10],  UNROLL_FACTOR*(bound-1)+10, p2[10], cnt2[10]);
+BACK<11>(numVert, delta[11], sigma2[11], stack2[11], _btwn[11],  UNROLL_FACTOR*(bound-1)+11, p2[11], cnt2[11]);
    }
 else
  {
-BACK<0>(numVert, delta1[0], sigma1[0], stack1[0], _btwn[0],  UNROLL_FACTOR*(bound-1)+0, p1[0], cnt1[0]);
-BACK<1>(numVert, delta1[1], sigma1[1], stack1[1], _btwn[1],  UNROLL_FACTOR*(bound-1)+1, p1[1], cnt1[1]);
-BACK<2>(numVert, delta1[2], sigma1[2], stack1[2], _btwn[2],  UNROLL_FACTOR*(bound-1)+2, p1[2], cnt1[2]);
-BACK<3>(numVert, delta1[3], sigma1[3], stack1[3], _btwn[3],  UNROLL_FACTOR*(bound-1)+3, p1[3], cnt1[3]);
-BACK<4>(numVert, delta1[4], sigma1[4], stack1[4], _btwn[4],  UNROLL_FACTOR*(bound-1)+4, p1[4], cnt1[4]);
-BACK<5>(numVert, delta1[5], sigma1[5], stack1[5], _btwn[5],  UNROLL_FACTOR*(bound-1)+5, p1[5], cnt1[5]);
-BACK<6>(numVert, delta1[6], sigma1[6], stack1[6], _btwn[6],  UNROLL_FACTOR*(bound-1)+6, p1[6], cnt1[6]);
-BACK<7>(numVert, delta1[7], sigma1[7], stack1[7], _btwn[7],  UNROLL_FACTOR*(bound-1)+7, p1[7], cnt1[7]);
+BACK<0>(numVert, delta[0], sigma1[0], stack1[0], _btwn[0],  UNROLL_FACTOR*(bound-1)+0, p1[0], cnt1[0]);
+BACK<1>(numVert, delta[1], sigma1[1], stack1[1], _btwn[1],  UNROLL_FACTOR*(bound-1)+1, p1[1], cnt1[1]);
+BACK<2>(numVert, delta[2], sigma1[2], stack1[2], _btwn[2],  UNROLL_FACTOR*(bound-1)+2, p1[2], cnt1[2]);
+BACK<3>(numVert, delta[3], sigma1[3], stack1[3], _btwn[3],  UNROLL_FACTOR*(bound-1)+3, p1[3], cnt1[3]);
+BACK<4>(numVert, delta[4], sigma1[4], stack1[4], _btwn[4],  UNROLL_FACTOR*(bound-1)+4, p1[4], cnt1[4]);
+BACK<5>(numVert, delta[5], sigma1[5], stack1[5], _btwn[5],  UNROLL_FACTOR*(bound-1)+5, p1[5], cnt1[5]);
+BACK<6>(numVert, delta[6], sigma1[6], stack1[6], _btwn[6],  UNROLL_FACTOR*(bound-1)+6, p1[6], cnt1[6]);
+BACK<7>(numVert, delta[7], sigma1[7], stack1[7], _btwn[7],  UNROLL_FACTOR*(bound-1)+7, p1[7], cnt1[7]);
+BACK<8>(numVert, delta[8], sigma1[8], stack1[8], _btwn[8],  UNROLL_FACTOR*(bound-1)+8, p1[8], cnt1[8]);
+BACK<9>(numVert, delta[9], sigma1[9], stack1[9], _btwn[9],  UNROLL_FACTOR*(bound-1)+9, p1[9], cnt1[9]);
+BACK<10>(numVert, delta[10], sigma1[10], stack1[10], _btwn[10],  UNROLL_FACTOR*(bound-1)+10, p1[10], cnt1[10]);
+BACK<11>(numVert, delta[11], sigma1[11], stack1[11], _btwn[11],  UNROLL_FACTOR*(bound-1)+11, p1[11], cnt1[11]);
    }
-
+   
   write_btwn: for (int i = 0; i < numVert; i++)
   {
 #pragma HLS LOOP_FLATTEN
