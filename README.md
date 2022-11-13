@@ -28,3 +28,4 @@
 2. 將該資料夾放到u50工作站
 3. cd至3_betweenness/test
 4. 執行指令: bash testbench_hw.sh
+5. (若Permission denied) chmod 777 * 之後再執行
