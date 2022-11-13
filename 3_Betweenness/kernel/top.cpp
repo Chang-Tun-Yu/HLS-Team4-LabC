@@ -4,7 +4,7 @@
 #include <queue>
 #include <stack>
 #include <math.h>
-#define UNROLL_FACTOR 8
+#define UNROLL_FACTOR 16
 template<int ID>
 void BFS(
 	unsigned numVert,
@@ -232,7 +232,7 @@ _column[15][i] = column[i];
   }
 
 
-	double delta1[UNROLL_FACTOR][N], delta2[UNROLL_FACTOR][N];
+	double delta[UNROLL_FACTOR][N];
 	double sigma1[UNROLL_FACTOR][N], sigma2[UNROLL_FACTOR][N];
 	static Stack<data_t, flag_t> stack1[UNROLL_FACTOR], stack2[UNROLL_FACTOR];
 	data_t p1[UNROLL_FACTOR][N][L], p2[UNROLL_FACTOR][N][L];
@@ -240,8 +240,7 @@ _column[15][i] = column[i];
 
 #pragma HLS array_partition variable=stack1  dim=1 type=complete
 #pragma HLS array_partition variable=stack2  dim=1 type=complete
-#pragma HLS array_partition variable=delta1  dim=1 type=complete
-#pragma HLS array_partition variable=delta2  dim=1 type=complete
+#pragma HLS array_partition variable=delta  dim=1 type=complete
 #pragma HLS array_partition variable=sigma1  dim=1 type=complete
 #pragma HLS array_partition variable=sigma2  dim=1 type=complete
 #pragma HLS array_partition variable=p1  dim=1 type=complete
