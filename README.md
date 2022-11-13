@@ -11,7 +11,6 @@
 6. synthesis
 7. cosim (較久，約15分鐘)
 
----
 #### CV: Harris
 
 1.	到github專案，檔案皆在./2_harris底下
