@@ -7,7 +7,7 @@
 2. top填"dft"
 3. 加入source file: coefficients1024.h, dft.cpp, dft.h
 4. 加入tb: dft_test.cpp, dft.h, out.gold.dat
-5. clock period=10ns, part=xc7z020clg400-1
+5. 選vivado IP flow, clock period=10ns, part=xc7z020clg400-1
 6. synthesis
 7. cosim (較久，約15分鐘)
 
