@@ -26,18 +26,6 @@ void dispatcher2D(hls::stream<Chunk<T> >& i_chunk, hls::stream<Window<T> >& o_wi
 	#pragma HLS ARRAY_PARTITION variable=linebuffer dim=1 complete
 	#pragma HLS ARRAY_RESHAPE variable=linebuffer factor=pf dim=2 cyclic
 	
-	//#pragma HLS DEPENDENCE variable=linebuffer inter false
-	//#pragma HLS DEPENDENCE variable=linebuffer intra false
-	// init line buffer
-	/*
-	for (unsigned i=0; i<128/PARALLEL; i++) {
-		for (unsigned n=0; n<PARALLEL; n++) {
-			#pragma HLS UNROLL factor=pf
-			linebuffer[0][n+i*PARALLEL] = pad_value;
-			linebuffer[1][n+i*PARALLEL] = pad_value;
-		}
-	}
-	*/
 	static Window<T> window;
 	#pragma HLS ARRAY_PARTITION variable=window.pixel dim=1 complete
 	#pragma HLS ARRAY_PARTITION variable=window.pixel dim=2 complete
@@ -101,7 +89,7 @@ void dispatcher2D(hls::stream<Chunk<T> >& i_chunk, hls::stream<Window<T> >& o_wi
 		}
 
 		// update the window from line buffer and old window
-		for (unsigned n = 0; n<PARALLEL; n++) {
+		for (unsigned n = 0; n<PARALLEL; n++) {image.png
 			#pragma HLS UNROLL
 			tmp_line_buffer[0][n] = linebuffer[0][col_ptr*PARALLEL+n];
 			tmp_line_buffer[1][n] = linebuffer[1][col_ptr*PARALLEL+n];
